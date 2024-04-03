@@ -1,0 +1,7 @@
+\section{NTKの関連研究}
+\subsection{NTKの関連研究の概要}
+NTKは\citet{jacot2018neural}によって提案されたニューラルネットワークの大域収束性の保証に貢献する理論である．近年，\citet{cho2009kernel}により深層ニューラルネットワークの学習に対応するカーネル関数が導出され，\citet{neal2012bayesian};  \citet{lee2018deep}がそのカーネル関数をガウス過程 (gaussian process; GP) の共分散関数として使用することで，中間層の幅を無限に近づけたニューラルネットワークを表現することができることを確認した．NTKは，ニューラルネットワークの各層の幅を無限に近づけることで，NTKというグラム行列が決定的 (deterministic) になるということを証明し，特定の条件下においてその行列の正定値性を示すことで，大域的最適解への線形収束を保証した．\citet{lee2019wide}はある有限の学習率の設定のもと，モデルの出力のダイナミクスがNTKによって決定されるダイナミクスに従うことを示した．NTKの性質に関する解析も進んでおり，入力の違いに対する安定性と近似能力が優れていることが示されている(\citealp{bietti2019inductive})．\citet{amari2020atf}は\citet{jacot2018neural}が与えているNTKの数学的に複雑な内容について，任意の目的関数がランダムに生成される目的関数のごく近傍に存在することを幾何的に示した．また，NTKは層の幅を十分に大きくすることを前提としているが，NTKにおける層の深さの役割に関する研究も進んでいる．\citet{yang2019fine}は識別したい関数の複雑さに応じて最適な深さが存在することを示している．\citet{hanin2019finite}は層の幅と深さの比率を固定して十分に大きくとったときのNTKの平均と分散を研究している．
+
+また，\citet{jacot2018neural}が提案したNTKが適用される構造は通常のニューラルネットワークのみであり，畳み込みニューラルネットワーク (convolutional neural network; CNN)については\citet{Arora2019OnEC}がConvolutional NTK (CNTK) を，自己符号化器 (autoencoder; AE)については\citet{nguyen2019benefits}が対応するNTK，グラフニューラルネットワーク (graph neural network; GNN)については\citet{du2019graph}がGraph NTK (GNTK) を提案している．
+
+\subsection{Fast Finite Width Neural Tangent Kernel}

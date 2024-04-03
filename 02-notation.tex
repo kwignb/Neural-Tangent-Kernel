@@ -1,0 +1,32 @@
+\section{記法とニューラルネットワークの定義式}
+\label{notation}
+$\mathcal{D} \subseteq \mathbb{R}^{n_0} \times \mathbb{R}^{k}$をデータセットの集合とし，$\mathcal{X}=\{\bm{x} \ | \ (\bm{x},\bm{y}) \in \mathcal{D}\}$ と $\mathcal{Y}=\{\bm{y} \ | \ (\bm{x},\bm{y}) \in \mathcal{D}\}$をそれぞれ入力データとラベルとする．中間層が$L$層，各層の幅を $n_l  \ (l=1,\ldots,L)$ とし，出力層の幅 (クラス数) を$n_{L+1}=k$とする．入力 $\bm{x} \in \mathbb{R}^{n_0}$ に対し，$h^{l}(\bm{x}), x^{l}(\bm{x}) \in \mathbb{R}^{n_l}$をpre-activation function，post-activation function とする．このとき，ニューラルネットワークの再帰関係の定義式を，
+\begin{align}
+    &\begin{dcases}
+        h^{l+1} = x^{l}\bm{W}^{l+1} + \bm{b}^{l+1} \\
+        x^{l+1} = \varphi(h^{l+1})
+    \end{dcases}
+    \\
+    &\begin{dcases}
+        W_{ij}^{l} = \dfrac{\sigma_{\omega}}{\sqrt{n_l}}\omega_{ij}^{l} \\
+        b_{j}^{l} = \sigma_b \beta_{j}^{l}
+    \end{dcases}
+\end{align}
+とする．ここで，$\varphi:\mathbb{R} \rightarrow \mathbb{R}$ はリプシッツ連続 (Lipschitz continuous) かつ2回連続微分可能な要素毎の活性化関数 (element-wise activation function)であり，$\bm{W}^{l+1} \in \mathbb{R}^{n_{l} \times n_{l+1}}$ と $\bm{b}^{l+1} \in \mathbb{R}^{n_{l+1}}$ は重み行列とバイアスベクトルを表し，$\omega_{ij}^{l},\beta_{j}^{l}$ は標準ガウス分布 $\mathcal{N}(0, 1)$ に従って初期化される．$\sigma_{\omega}^2, \sigma_{b}^2$ は重みとバイアスの分散である．この定義は標準的なニューラルネットワークの再帰関係の式
+\begin{align}
+    \begin{dcases}
+        h^{l+1} = x^{l}\bm{W}^{l+1} + \bm{b}^{l+1} \\
+        x^{l+1} = \varphi(h^{l+1}) \\
+        W_{ij}^{l}, b_{j}^{l} \sim \mathcal{U}\left(-\sqrt{k}, \sqrt{k}\right), \quad k = \dfrac{6}{n_l + n_{l-1}}
+    \end{dcases}
+\end{align}
+とは異なり，NTK parametrizationと呼ばれる(ここでは重みとバイアスの初期化にGlorotの一様分布(\citealp{glorot2010understanding})を用いている)．NTK parametrization はネットワークのフォワードダイナミクスのみでなく，誤差逆伝播 (backpropagation) 時のダイナミクスも正規化している．
+
+また，各層$l$毎のパラメータベクトル $\bm{\theta}^l \in \mathbb{R}^{(n_{l-1}+1)n_l}$ と全ネットワークのパラメータベクトル $\bm{\theta} \in \mathbb{R}^P \ (P=\sum_{l=0}^{L-1}(n_{l}+1)n_{l+1})$ を以下のように定義する．
+\begin{align}
+    \bm{\theta}^{l} \equiv \mbox{vec}\left(\{\bm{W}^{l}, \bm{b}^{l}\}\right), \quad \bm{\theta} = \mbox{vec}\left(\bigcup_{l=1}^L \bm{\theta}^l\right)
+\end{align}
+ここで$\mbox{vec}(\cdot)$は，行列の各列を縦に並べ，1つの列ベクトルの形にするベクトル化を表す．連続時間 $t \in \mathbb{R}_0^{+}$ ($\mathbb{R}_0^{+}$は0を含む正の実数の集合)  におけるパラメータの時間依存を$\bm{\theta}_t$，その初期値を$\bm{\theta}_0$とし，ニューラルネットワークの出力を$f_t(\bm{x}) \equiv h_t^{L+1}(\bm{x}) \in \mathbb{R}^{k}$とする．$\hat{\bm{y}}$をニューラルネットワークによる予測値とすると，損失関数 (loss function) は$\ell (\hat{\bm{y}}, \bm{y}):\mathbb{R}^{k} \times \mathbb{R}^k \rightarrow \mathbb{R}$となる．教師あり学習 (supervised learning) では，以下に記述する経験損失 (empirical loss) $\mathcal{L}$ を最小化する $\bm{\theta}$の学習を行う．
+\begin{align}
+    \mathcal{L}_t = \dfrac{1}{k|\mathcal{D}|}\sum_{(\bm{x},\bm{y}) \in \mathcal{D}} \ell(f_t(\bm{x},\bm{\theta}_t), \bm{y})
+\end{align}

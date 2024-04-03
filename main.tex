@@ -1,7 +1,11 @@
-\documentclass[a4paper]{bxjsarticle} 
+\documentclass[
+    a4paper,
+    xelatex,
+    ja=standard,
+    jafont=noto
+]{bxjsarticle}
+\setpagelayout{margin=2cm}
 \usepackage{graphicx}
-\usepackage{zxjatype}
-\usepackage[ipa]{zxjafont}
 \usepackage{amssymb,amsmath,amsthm,amsfonts}
 \usepackage{mathtools}
 \usepackage{tikz-cd}
@@ -13,7 +17,7 @@
 \usepackage{booktabs}
 \usepackage{color}
 \usepackage[colorlinks=true, allcolors=blue]{hyperref}
-\usepackage{natbib}
+\usepackage[sort,compress,super,comma]{natbib} 
 \setcitestyle{authoryear,open={(},close={)}}
 
 %% User settings
@@ -25,7 +29,7 @@
 \vspace{0.7em}
 \begin{flushright}%
 作成日 2020.2.24\\%
-最終更新 2020.2.24\\%
+最終更新 2024.4.3\\%
 渡部　海斗\footnote{\protect\url{watanabe.kaito.xu@alumni.tsukuba.ac.jp}}%
 \end{flushright}}
 
@@ -34,18 +38,28 @@
 \newcommand{\verbar}[1]{\left|#1\right|}
 \newcommand{\parentheness}[1]{\left(#1\right)}
 
-\setlength{\oddsidemargin}{0.1in}
-\setlength{\evensidemargin}{0.1in} 
-\setlength{\topmargin}{0in}
-\setlength{\textwidth}{6in} 
-\setlength{\parskip}{0em}
-\setlength{\topsep}{0em}
-
-\theoremstyle{definition}
-\newtheorem{thm}{Theorem}[section]
-\newtheorem{lem}[thm]{Lemma}
-\newtheorem{cor}[thm]{Corollary}
-\newtheorem{prop}[thm]{Proposition}
+\usepackage{mdframed}
+\mdfdefinestyle{theoremstyle}{%
+    linecolor=gray!40,linewidth=.5pt,%
+    backgroundcolor=gray!10,
+    skipabove=8pt,
+    skipbelow=5pt,
+    innerleftmargin=5pt,
+    innerrightmargin=5pt,
+    frametitlerule=true,%
+    frametitlerulewidth=.5pt,
+    frametitlebackgroundcolor=gray!15,
+    frametitleaboveskip=0pt,
+    frametitlebelowskip=0pt,
+    innertopmargin=\topskip,
+    theoremseparator={.},
+}
+\mdtheorem[style=theoremstyle]{defi}{定義}[section]
+\mdtheorem[style=theoremstyle]{prop}[defi]{命題}
+\mdtheorem[style=theoremstyle]{thm}[defi]{定理}
+\mdtheorem[style=theoremstyle]{lem}[defi]{補題}
+\mdtheorem[style=theoremstyle]{coro}[defi]{系}
+\mdtheorem[style=theoremstyle]{axiom}[defi]{公理}
 
 \DeclareMathOperator*{\argmin}{arg\,min}
 \DeclareMathOperator*{\argmax}{arg\,max}
@@ -53,116 +67,13 @@
 \begin{document}
 \myhead
 
-\section{本稿作成の目的}
-本稿はNeural Tangent Kernel (NTK) (\citealp{jacot2018neural})について概説したものです．NTKについては既に多くのわかり易い解説(\citealp{rajat2019ntk}; \citealp{甘利俊一2019情報幾何学の新展開}; \citealp{TaijiSuzuki2019theory}) がありますが，自分自身の理解を深める，またその過程の中でNTKについて共有することができればと思い，改めて自分で作成しました．
+\input{01-purpose}
+\input{02-notation}
+\input{03-def_NTK}
+\input{04-infinite_width}
+\input{05-output_dynamics}
+\input{06-related_works}
 
-適宜，NTK周りの関連研究や理論的な部分に踏み込んで説明することができればと思います．
-
-\section{記法とニューラルネットワークの定義式}
-\label{notation}
-$\mathcal{D} \subseteq \mathbb{R}^{n_0} \times \mathbb{R}^{k}$をデータセットの集合とし，$\mathcal{X}=\{\bm{x} \ | \ (\bm{x},\bm{y}) \in \mathcal{D}\}$ と $\mathcal{Y}=\{\bm{y} \ | \ (\bm{x},\bm{y}) \in \mathcal{D}\}$をそれぞれ入力データとラベルとする．中間層が$L$層，各層の幅を $n_l  \ (l=1,\ldots,L)$ とし，出力層の幅 (クラス数) を$n_{L+1}=k$とする．入力 $\bm{x} \in \mathbb{R}^{n_0}$ に対し，$h^{l}(\bm{x}), x^{l}(\bm{x}) \in \mathbb{R}^{n_l}$をpre-activation function，post-activation function とする．このとき，ニューラルネットワークの再帰関係の定義式を，
-\begin{align}
-    &\begin{dcases}
-        h^{l+1} = x^{l}\bm{W}^{l+1} + \bm{b}^{l+1} \\
-        x^{l+1} = \varphi(h^{l+1})
-    \end{dcases}
-    \\
-    &\begin{dcases}
-        W_{ij}^{l} = \dfrac{\sigma_{\omega}}{\sqrt{n_l}}\omega_{ij}^{l} \\
-        b_{j}^{l} = \sigma_b \beta_{j}^{l}
-    \end{dcases}
-\end{align}
-とする．ここで，$\varphi:\mathbb{R} \rightarrow \mathbb{R}$ はリプシッツ連続 (Lipschitz continuous) かつ2回連続微分可能な要素毎の活性化関数 (element-wise activation function)であり，$\bm{W}^{l+1} \in \mathbb{R}^{n_{l} \times n_{l+1}}$ と $\bm{b}^{l+1} \in \mathbb{R}^{n_{l+1}}$ は重み行列とバイアスベクトルを表し，$\omega_{ij}^{l},\beta_{j}^{l}$ は標準ガウス分布 $\mathcal{N}(0, 1)$ に従って初期化される．$\sigma_{\omega}^2, \sigma_{b}^2$ は重みとバイアスの分散である．この定義は標準的なニューラルネットワークの再帰関係の式
-\begin{align}
-    \begin{dcases}
-        h^{l+1} = x^{l}\bm{W}^{l+1} + \bm{b}^{l+1} \\
-        x^{l+1} = \varphi(h^{l+1}) \\
-        W_{ij}^{l}, b_{j}^{l} \sim \mathcal{U}\left(-\sqrt{k}, \sqrt{k}\right), \quad k = \dfrac{6}{n_l + n_{l-1}}
-    \end{dcases}
-\end{align}
-とは異なり，NTK parametrizationと呼ばれる(ここでは重みとバイアスの初期化にGlorotの一様分布(\citealp{glorot2010understanding})を用いている)．NTK parametrization はネットワークのフォワードダイナミクスのみでなく，誤差逆伝播 (backpropagation) 時のダイナミクスも正規化している．
-
-また，各層$l$毎のパラメータベクトル $\bm{\theta}^l \in \mathbb{R}^{(n_{l-1}+1)n_l}$ と全ネットワークのパラメータベクトル $\bm{\theta} \in \mathbb{R}^P \ (P=\sum_{l=0}^{L-1}(n_{l}+1)n_{l+1})$ を以下のように定義する．
-\begin{align}
-    \bm{\theta}^{l} \equiv \mbox{vec}\left(\{\bm{W}^{l}, \bm{b}^{l}\}\right), \quad \bm{\theta} = \mbox{vec}\left(\bigcup_{l=1}^L \bm{\theta}^l\right)
-\end{align}
-ここで$\mbox{vec}(\cdot)$は，行列の各列を縦に並べ，1つの列ベクトルの形にするベクトル化を表す．連続時間 $t \in \mathbb{R}_0^{+}$ ($\mathbb{R}_0^{+}$は0を含む正の実数の集合)  におけるパラメータの時間依存を$\bm{\theta}_t$，その初期値を$\bm{\theta}_0$とし，ニューラルネットワークの出力を$f_t(\bm{x}) \equiv h_t^{L+1}(\bm{x}) \in \mathbb{R}^{k}$とする．$\hat{\bm{y}}$をニューラルネットワークによる予測値とすると，損失関数 (loss function) は$\ell (\hat{\bm{y}}, \bm{y}):\mathbb{R}^{k} \times \mathbb{R}^k \rightarrow \mathbb{R}$となる．教師あり学習 (supervised learning) では，以下に記述する経験損失 (empirical loss) $\mathcal{L}$ を最小化する $\bm{\theta}$の学習を行う．
-\begin{align}
-    \mathcal{L}_t = \dfrac{1}{k|\mathcal{D}|}\sum_{(\bm{x},\bm{y}) \in \mathcal{D}} \ell(f_t(\bm{x},\bm{\theta}), \bm{y})
-\end{align}
-
-\section{学習の定義とNTK}
-\label{learning_def_NTK}
-学習は損失関数を減らしていくよう，勾配の逆方向にパラメータを変動させていく．バッチ学習を考えるものとして，以下にパラメータ $\bm{\theta}_t$ の学習を記述する．学習率を$\eta$と置く．このとき，
-\begin{align}
-    \dot{\bm{\theta}}_t &= -\eta \dfrac{\partial \mathcal{L}}{\partial \bm{\theta}} \\
-    &= -\eta \dfrac{\partial f_t(\mathcal{X})^{\mathrm{T}}}{\partial \bm{\theta}} \dfrac{\partial \mathcal{L}}{\partial f_t(\mathcal{X})} \\
-    &= -\eta \nabla_{\bm{\theta}}f_t(\mathcal{X})^{\mathrm{T}}\nabla_{f_t(\mathcal{X})}\mathcal{L} \label{param1}
-\end{align}
-となる．ここで，$\dot{\bm{\theta}}$ は $\bm{\theta}$ の時間微分であり，$\partial/\partial x = \nabla_x$ である．また，$\nabla_{f_t(\mathcal{X})}\mathcal{L}$ はネットワークの出力 $f_t(\mathcal{X})$ に関する損失の勾配であり，$f_t(\mathcal{X}) = \mbox{vec}([f_t(\bm{x})]_{\bm{x} \in \mathcal{X}}) \in \mathbb{R}^{k|\mathcal{D}|}$ である．
-
-次に，学習によってネットワークが得る出力を表す関数 $f_t(\mathcal{X})$ がどのように変化していくかを確認する．パラメータ $\bm{\theta}_t$ の学習と同様，時間微分を考えると，
-\begin{align}
-    \dot{f}_t(\mathcal{X}) &= \dfrac{\partial f_t(\mathcal{X})}{\partial t} \\
-    &= \dfrac{\partial f_t(\mathcal{X})}{\partial \bm{\theta}} \dfrac{\partial \bm{\theta}}{\partial t} \\
-    &= \nabla_{\bm{\theta}}f_t(\mathcal{X})\dot{\bm{\theta}_t}
-\end{align}
-と書くことができる．さらに，式(\ref{param1}) を用いれば，
-\begin{align}
-    \dot{f}_t(\mathcal{X}) &= -\eta\nabla_{\bm{\theta}}f_t(\mathcal{X})\nabla_{\bm{\theta}}f_t(\mathcal{X})^{\mathrm{T}}\nabla_{f_t(\mathcal{X})}\mathcal{L} \\
-    &= -\eta\hat{\Theta}_t(\mathcal{X}, \mathcal{X})\nabla_{f_t(\mathcal{X})}\mathcal{L} \label{func_learning}
-\end{align}
-と書くことができる．$\hat{\Theta}_t = \hat{\Theta}_t(\mathcal{X}, \mathcal{X}) \in \mathbb{R}^{k|\mathcal{D}| \times k|\mathcal{D}|}$は時間$t$におけるNeural Tangent Kernel (NTK) であり，以下のように定義される．
-\begin{align}
-    \hat{\Theta}_t = \nabla_{\bm{\theta}}f_t(\mathcal{X})\nabla_{\bm{\theta}}f_t(\mathcal{X})^{\mathrm{T}} = \sum_{l=1}^{L+1} \nabla_{\bm{\theta}^l}f_t(\mathcal{X})\nabla_{\bm{\theta}^l}f_t(\mathcal{X})^{\mathrm{T}}
-\end{align}
-また，$\mathcal{X}$以外の入力$\bm{x}' \in \mathbb{R}^{n_0}$に対するNTKは$\hat{\Theta}_t(\bm{x}', \mathcal{X})$と定義できる．このNTKを用いて，学習方程式を関数空間で考える．
-
-\section{中間層が無限幅のネットワーク}
-\label{infinite_width}
-3節ではNTKの定義を与えたが，一般には関数空間内での学習を考える式(\ref{func_learning})の計算は難しい．何故なら，NTK $\hat{\Theta}_t$ は時間毎に変化するためである．しかし，損失関数を平均二乗誤差 (mean square error; MSE)，$\lambda_{\min/\max}(\Theta)$ をNTK $\Theta$ の最小/最大固有値，$\eta_{\text{critical}} \coloneqq 2(\lambda_{\min}(\Theta)+\lambda_{\max}(\Theta))^{-1}$ としたとき，以下の定理が証明されている．\vspace{0.5em}
-
-\begin{thm}
-\label{statement_ntk}
-    (\citealp{lee2019wide}) $n_1 = \cdots = n_L = n$とし，$\lambda_{\min}(\Theta) > 0$を仮定する．学習率 $\eta$ が $\eta_{\text{critical}}$ より小さく，任意の入力 $\bm{x} \in \mathbb{R}^{n_0}$ が $\|\bm{x}\|_2 \leq 1$ を満たすとき，以下が成立する．
-    \begin{align*}
-        \sup_{t \geq 0} \|f_t(\bm{x}) - f_t^{lin}(\bm{x})\|_2, \ \sup_{t \geq 0} \dfrac{\|\bm{\theta}_t - \bm{\theta}_0\|_2}{\sqrt{n}}, \ \sup_{t \geq 0}\left\|\hat{\Theta}_t - \hat{\Theta}_0\right\|_F = \mathcal{O}\left(n^{-\frac{1}{2}}\right), \ \mbox{as} \quad n \rightarrow \infty
-    \end{align*}
-\end{thm}
-\par
-\noindent
-$f_t^{lin}(\bm{x})$ について，詳細は式(\ref{f_t_lin})で示すがNTK $\hat{\Theta}_0$ を用いて記述されたモデルの出力である．この定理は中間層の幅を無限にしたとき，$t$ を大きく取ったときにも 学習の最適なパラメータ $\bm{\theta}_t$ は $\bm{\theta}_0$ の近傍にあることを主張しており，さらに $\Theta_t$ を $\Theta_0$ で近似できることも主張している．この定理を用いて，NTKを用いたネットワークの出力ダイナミクスの記述を行う．
-
-\section{NTKを用いたネットワークの出力ダイナミクス}
-\label{NTK_dynamics}
-本節ではニューラルネットワークの出力を1次のテイラー展開 (Taylor expansion) で置き換えることにより，線形化されたニューラルネットワーク (linearized neural network) の学習のダイナミクスを記述する．時間 $t$ 時点における線形化されたネットワークの出力を $f_t^{lin}(\bm{x})$ とすると，1次のテイラー展開は，
-\begin{align}
-    f_t^{lin}(\bm{x}) \equiv f_0(\bm{x}) + \nabla_{\bm{\theta}}f_0(\bm{x})|_{\bm{\theta}=\bm{\theta}_0}\bm{\omega}_t \label{f_t_lin}
-\end{align}
-と書ける．ここで，$\bm{\omega}_t=\bm{\theta}_t - \bm{\theta}_0$である．$f_t^{lin}$ は第一項がネットワークの初期値であり，第二項が学習中の初期値からの値の変化を示す．$\bm{\omega}_t$ の時間微分は
-\begin{align}
-    \dot{\bm{\omega}}_t = -\eta \nabla_{\bm{\theta}}f_0(\mathcal{X})^{\mathrm{T}}\nabla_{f_t^{lin}(\mathcal{X})}\mathcal{L} \label{ode}
-\end{align}
-となる．$\nabla_{\bm{\theta}}f_0(\bm{x})$は学習を通して一定の値を取るので，損失関数にMSE，すなわち$\ell(\hat{\bm{y}},\bm{y}) = \frac{1}{2}|\hat{\bm{y}}-\bm{y}|_2^2$を使用したとき，式(\ref{ode})について常微分方程式を解けば，
-\begin{align}
-    \bm{\omega}_t = -\nabla_{\bm{\theta}}f_0(\mathcal{X})^{\mathrm{T}}\hat{\Theta}_{0}^{-1}\left(I - e^{-\eta\hat{\Theta}_0 t/k|\mathcal{D}|}\right)(f_0(\mathcal{X})- \mathcal{Y})
-\end{align}
-が得られる．つまり，$f_t^{lin}(\mathcal{X})$ は，
-\begin{align}
-    f_t^{lin}(\mathcal{X}) &= f_0(\mathcal{X}) - \nabla_{\bm{\theta}}f_0(\mathcal{X})\nabla_{\bm{\theta}}f_0(\mathcal{X})^{\mathrm{T}}\hat{\Theta}_{0}^{-1}\left(I - e^{-\eta\hat{\Theta}_0 t/k|\mathcal{D}|}\right)(f_0(\mathcal{X})- \mathcal{Y}) \\
-    &= f_0(\mathcal{X}) - \hat{\Theta}_0 \hat{\Theta}_0^{-1}\left(I - e^{-\eta\hat{\Theta}_0 t/k|\mathcal{D}|}\right)(f_0(\mathcal{X})- \mathcal{Y}) \\
-    &= f_0(\mathcal{X}) - \left(I - e^{-\eta\hat{\Theta}_0 t/k|\mathcal{D}|}\right)(f_0(\mathcal{X})- \mathcal{Y}) \\
-    &= \left(I - e^{-\eta\hat{\Theta}_0 t/k|\mathcal{D}|}\right)\mathcal{Y} + e^{-\eta\hat{\Theta}_0 t/k|\mathcal{D}|}f_0(\mathcal{X}) \label{ntk_output}
-\end{align}
-と書ける．$\mathcal{X}$ 以外の入力 $\bm{x}'$ に対する出力 $f_t^{lin}(\bm{x}')$ は，
-\begin{align}
-    f_t^{lin}(\bm{x}') &= f_0(\bm{x}') - \nabla_{\bm{\theta}}f_0(\bm{x}')\nabla_{\bm{\theta}}f_0(\mathcal{X})^{\mathrm{T}}\hat{\Theta}_{0}^{-1}\left(I - e^{-\eta\hat{\Theta}_0 t/k|\mathcal{D}|}\right)(f_0(\mathcal{X})- \mathcal{Y}) \\
-    &= f_0(\bm{x}') - \hat{\Theta}_0(\bm{x}', \mathcal{X}) \hat{\Theta}_0^{-1}\left(I - e^{-\eta\hat{\Theta}_0 t/k|\mathcal{D}|}\right)(f_0(\mathcal{X})- \mathcal{Y})
-\end{align}
-と書ける．したがって，初期化時のネットワークの出力 $f_0(\mathcal{X}), \ f_0(\bm{x}')$ とNTK $\hat{\Theta}_0, \ \hat{\Theta}_0(\bm{x}',\mathcal{X})$を計算すれば， 勾配降下法を実行することなく，線形化されたニューラルネットワークの各時間における学習結果を計算できるということである．通常であれば，このようにネットワークの出力を構成したとしても，各時間における NTK $\hat{\Theta}_t$ を計算する必要があり，何もメリットがない．しかし，4.3節で述べた定理\ref{statement_ntk}により，中間層の幅を十分に大きく取れば，任意の学習時間における NTK $\hat{\Theta}_t$ を $\hat{\Theta}_0$ で近似することができるため，関数空間内においてネットワークを線形化することができる．
-
-\addcontentsline{toc}{chapter}{\numberline{}参考文献}
-\renewcommand{\bibname}{参考文献}
 \bibliographystyle{abbrvnat}
 \bibliography{references}
 
