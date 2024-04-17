@@ -1,16 +1,16 @@
-\section{中間層が無限幅のネットワーク}
+\section{中間層が無限幅のNN}
 \label{infinite_width}
-3節ではNTKの定義を与えたが，一般には関数空間内での学習を考える式(\ref{func_learning})の計算は難しい．何故なら，NTK $\hat{\Theta}_t$ は時間毎に変化するためである．しかし，損失関数を平均二乗誤差 (mean square error; MSE)，$\lambda_{\min/\max}(\Theta)$ をNTK $\Theta$ の最小/最大固有値，$\eta_{\text{critical}} \coloneqq 2(\lambda_{\min}(\Theta)+\lambda_{\max}(\Theta))^{-1}$ としたとき，以下の定理が証明されている．
+3節ではNTKの定義を与えたが，一般には関数空間内での学習を考える式(\ref{func_learning})の計算は難しい．何故なら，NTK $\hat{\NTK}_t$ は時間毎に変化するためである．しかし，損失関数を平均二乗誤差 (mean square error; MSE)，$\lambda_{\min/\max}(\NTK)$ をNTK $\NTK$ の最小/最大固有値，$\eta_{\text{critical}} \coloneqq 2(\lambda_{\min}(\NTK)+\lambda_{\max}(\NTK))^{-1}$ としたとき，以下の定理が証明されている．
 \begin{thm}[(\citealp{lee2019wide})]
 \label{statement_ntk}
-    $n_1 = \cdots = n_L = n$とし，$\lambda_{\min}(\Theta) > 0$を仮定する．学習率 $\eta$ が $\eta_{\text{critical}}$ より小さく，任意の入力 $\bm{x} \in \mathbb{R}^{n_0}$ が $\|\bm{x}\|_2 \leq 1$ を満たすとき，以下が成立する．
+    $n_1 = \cdots = n_L = n$とし，$\lambda_{\min}(\NTK) > 0$を仮定する．学習率 $\eta$ が $\eta_{\text{critical}}$ より小さく，任意の入力 $\bm{x} \in \mathbb{R}^{n_0}$ が $\|\bm{x}\|_2 \leq 1$ を満たすとき，以下が成立する．
     \begin{align*}
-        \sup_{t \geq 0} \|f_t(\bm{x}) - f_t^{lin}(\bm{x})\|_2, \ \sup_{t \geq 0} \dfrac{\|\bm{\theta}_t - \bm{\theta}_0\|_2}{\sqrt{n}}, \ \sup_{t \geq 0}\left\|\hat{\Theta}_t - \hat{\Theta}_0\right\|_F = \mathcal{O}\left(n^{-\frac{1}{2}}\right), \ \mbox{as} \quad n \rightarrow \infty
+        \sup_{t \geq 0} \|f_t(\bm{x}) - f_t^{lin}(\bm{x})\|_2, \ \sup_{t \geq 0} \dfrac{\|\bm{\theta}_t - \bm{\theta}_0\|_2}{\sqrt{n}}, \ \sup_{t \geq 0}\left\|\hat{\NTK}_t - \hat{\NTK}_0\right\|_F = \mathcal{O}\left(n^{-\frac{1}{2}}\right), \ \mbox{as} \quad n \rightarrow \infty
     \end{align*}
 \end{thm}
 \begin{proof}
-
+    Appendix \ref{appendix_01} に記載．
 \end{proof}
 \par
 \noindent
-$f_t^{lin}(\bm{x})$ について，詳細は式(\ref{f_t_lin})で示すがNTK $\hat{\Theta}_0$ を用いて記述されたモデルの出力である．この定理は中間層の幅を無限にしたとき，$t$ を大きく取ったときにも 学習の最適なパラメータ $\bm{\theta}_t$ は $\bm{\theta}_0$ の近傍にあることを主張しており，さらに $\Theta_t$ を $\Theta_0$ で近似できることも主張している．この定理を用いて，NTKを用いたネットワークの出力ダイナミクスの記述を行う．
+$f_t^{lin}(\bm{x})$ について，詳細は式(\ref{f_t_lin})で示すがNTK $\hat{\NTK}_0$ を用いて記述されたモデルの出力である．この定理は中間層の幅を無限にしたとき，$t$ を大きく取ったときにも 学習の最適なパラメータ $\bm{\theta}_t$ は $\bm{\theta}_0$ の近傍にあることを主張しており，さらに $\NTK_t$ を $\NTK_0$ で近似できることも主張している．この定理を用いて，NTKを用いたNNの出力ダイナミクスの記述を行う．

@@ -5,6 +5,7 @@
     jafont=noto
 ]{bxjsarticle}
 \setpagelayout{margin=2cm}
+
 \usepackage{graphicx}
 \usepackage{amssymb,amsmath,amsthm,amsfonts}
 \usepackage{mathtools}
@@ -29,14 +30,48 @@
 \vspace{0.7em}
 \begin{flushright}%
 作成日 2020.2.24\\%
-最終更新 2024.4.3\\%
+最終更新 2024.4.18\\%
 渡部　海斗\footnote{\protect\url{watanabe.kaito.xu@alumni.tsukuba.ac.jp}}%
 \end{flushright}}
+
+\makeatletter
+\renewcommand{\theequation}{%
+\thesection.\arabic{equation}}
+\@addtoreset{equation}{section}
+\makeatother
 
 \newcommand{\iprod}[1]{\left\langle#1\right\rangle}
 \newcommand{\bracket}[1]{\left[#1\right]}
 \newcommand{\verbar}[1]{\left|#1\right|}
+\newcommand{\norm}[1]{\|#1\|}
 \newcommand{\parentheness}[1]{\left(#1\right)}
+\newcommand{\floor}[1]{\left\lfloor#1\right\rfloor}
+\newcommand{\curly}[1]{\left\{#1\right\}}
+
+\newcommand{\LL}{\mathcal{L}}
+\newcommand{\DD}{\mathcal{D}}
+\newcommand{\RR}{\mathbb{R}}
+\newcommand{\CC}{\mathbb{C}}
+\newcommand{\EE}{\mathbb{E}}
+\newcommand{\VV}{\mathbb{V}}
+\newcommand{\NN}{\mathcal{N}}
+\newcommand{\FIM}{\bm{\mathrm{F}}}
+\newcommand{\Hessian}{\bm{\mathrm{H}}}
+\newcommand{\Identity}{\bm{\mathrm{I}}}
+\newcommand{\NTK}{\bm{\Theta}}
+
+\newcommand{\bmrm}[1]{\bm{\mathrm{#1}}}
+\newcommand{\Gaussian}[1]{\mathcal{N}\parentheness{#1}}
+
+\newcommand{\red}[1]{\textcolor{red}{#1}}
+\newcommand{\blue}[1]{\textcolor{blue}{#1}}
+\newcommand{\cyan}[1]{\textcolor{cyan}{#1}}
+\newcommand{\violet}[1]{\textcolor{violet}{#1}}
+\newcommand{\teal}[1]{\textcolor{teal}{#1}}
+\newcommand{\maroon}[1]{\textcolor[HTML]{800000}{#1}}
+\newcommand{\cfblue}[1]{\textcolor[HTML]{6495ed}{#1}}
+\newcommand{\olive}[1]{\textcolor[HTML]{808000}{#1}}
+\newcommand{\dblue}[1]{\textcolor[HTML]{1e90ff}{#1}}
 
 \usepackage{mdframed}
 \mdfdefinestyle{theoremstyle}{%
@@ -74,7 +109,12 @@
 \input{05-output_dynamics}
 \input{06-related_works}
 
+\setlength{\bibsep}{5pt}
 \bibliographystyle{abbrvnat}
 \bibliography{references}
+
+\newpage
+\appendix
+\input{appendix_01}
 
 \end{document}

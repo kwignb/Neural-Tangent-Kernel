@@ -6,9 +6,9 @@
     &= -\eta \dfrac{\partial f_t(\mathcal{X})^{\mathrm{T}}}{\partial \bm{\theta}} \dfrac{\partial \mathcal{L}}{\partial f_t(\mathcal{X})} \\
     &= -\eta \nabla_{\bm{\theta}}f_t(\mathcal{X})^{\mathrm{T}}\nabla_{f_t(\mathcal{X})}\mathcal{L} \label{param1}
 \end{align}
-となる．ここで，$\dot{\bm{\theta}}$ は $\bm{\theta}$ の時間微分であり，$\partial/\partial x = \nabla_x$ である．また，$\nabla_{f_t(\mathcal{X})}\mathcal{L}$ はネットワークの出力 $f_t(\mathcal{X})$ に関する損失の勾配であり，$f_t(\mathcal{X}) = \mbox{vec}([f_t(\bm{x})]_{\bm{x} \in \mathcal{X}}) \in \mathbb{R}^{k|\mathcal{D}|}$ である．
+となる．ここで，$\dot{\bm{\theta}}$ は $\bm{\theta}$ の時間微分であり，$\partial/\partial x = \nabla_x$ である．また，$\nabla_{f_t(\mathcal{X})}\mathcal{L}$ はNNの出力 $f_t(\mathcal{X})$ に関する損失の勾配であり，$f_t(\mathcal{X}) = \mbox{vec}([f_t(\bm{x})]_{\bm{x} \in \mathcal{X}}) \in \mathbb{R}^{k|\mathcal{D}|}$ である．
 
-次に，学習によってネットワークが得る出力を表す関数 $f_t(\mathcal{X})$ がどのように変化していくかを確認する．パラメータ $\bm{\theta}_t$ の学習と同様，時間微分を考えると，
+次に，学習によってNNが得る出力を表す関数 $f_t(\mathcal{X})$ がどのように変化していくかを確認する．パラメータ $\bm{\theta}_t$ の学習と同様，時間微分を考えると，
 \begin{align}
     \dot{f}_t(\mathcal{X}) &= \dfrac{\partial f_t(\mathcal{X})}{\partial t} \\
     &= \dfrac{\partial f_t(\mathcal{X})}{\partial \bm{\theta}} \dfrac{\partial \bm{\theta}}{\partial t} \\
@@ -17,13 +17,13 @@
 と書くことができる．さらに，式(\ref{param1}) を用いれば，
 \begin{align}
     \dot{f}_t(\mathcal{X}) &=  -\eta\nabla_{\bm{\theta}}f_t(\mathcal{X})\nabla_{\bm{\theta}}f_t(\mathcal{X})^{\mathrm{T}}\nabla_{f_t(\mathcal{X})}\mathcal{L} \\
-    &= -\eta\hat{\Theta}_t(\mathcal{X}, \mathcal{X})\nabla_{f_t(\mathcal{X})}\mathcal{L} \label{func_learning}
+    &= -\eta\hat{\NTK}_t(\mathcal{X}, \mathcal{X})\nabla_{f_t(\mathcal{X})}\mathcal{L} \label{func_learning}
 \end{align}
-と書くことができる．$\hat{\Theta}_t = \hat{\Theta}_t(\mathcal{X}, \mathcal{X}) \in \mathbb{R}^{k|\mathcal{D}| \times k|\mathcal{D}|}$は時間$t$におけるNeural Tangent Kernel (NTK) であり，以下のように定義される．
+と書くことができる．$\hat{\NTK}_t = \hat{\NTK}_t(\mathcal{X}, \mathcal{X}) \in \mathbb{R}^{k|\mathcal{D}| \times k|\mathcal{D}|}$は時間$t$におけるNeural Tangent Kernel (NTK) であり，以下のように定義される．
 \begin{align}
-    \hat{\Theta}_t = \nabla_{\bm{\theta}}f_t(\mathcal{X})\nabla_{\bm{\theta}}f_t(\mathcal{X})^{\mathrm{T}} = \sum_{l=1}^{L+1} \nabla_{\bm{\theta}^l}f_t(\mathcal{X})\nabla_{\bm{\theta}^l}f_t(\mathcal{X})^{\mathrm{T}}
+    \hat{\NTK}_t = \nabla_{\bm{\theta}}f_t(\mathcal{X})\nabla_{\bm{\theta}}f_t(\mathcal{X})^{\mathrm{T}} = \sum_{l=1}^{L+1} \nabla_{\bm{\theta}^l}f_t(\mathcal{X})\nabla_{\bm{\theta}^l}f_t(\mathcal{X})^{\mathrm{T}}
 \end{align}
-また，$\mathcal{X}$以外の入力$\bm{x}' \in \mathbb{R}^{n_0}$に対するNTKは$\hat{\Theta}_t(\bm{x}', \mathcal{X})$と定義できる．このNTKを用いて，学習方程式を関数空間で考える．
+また，$\mathcal{X}$以外の入力$\bm{x}' \in \mathbb{R}^{n_0}$に対するNTKは$\hat{\NTK}_t(\bm{x}', \mathcal{X})$と定義できる．このNTKを用いて，学習方程式を関数空間で考える．
 
 % \subsection{NTKのT(Tangent)とは？}
 % NTKのT(Tangent)の要素は一体どこから来るのか気になっている方もおられるのではないだろうか．

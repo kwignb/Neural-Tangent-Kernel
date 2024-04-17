@@ -1,0 +1,120 @@
+\def\thesection{\Alph{section}}
+\section{定理 \ref{statement_ntk} の証明}
+\label{appendix_01}
+本節ではNTKを用いたバッチ勾配降下におけるNNの大域的収束性と，勾配降下におけるNTKの安定性を証明する方法を示す．また，本証明で取り扱うのはNTK parametrizationではなくstandard parametrizationであるが，若干の変更によりNTK parametrizationにも適用可能である．
+
+\subsection{NTK parametrizationとstandard parametrization}
+standard parametizationは以下の式で定義される:
+\begin{align}
+    \label{standard_parametrization}
+        \begin{dcases}
+            h^{l+1} = x^{l}\bm{W}^{l+1} + \bm{b}^{l+1} \\
+            x^{l+1} = \varphi(h^{l+1})
+        \end{dcases}
+        \quad\mbox{and}\quad
+        \begin{dcases}
+            W_{ij}^{l} = \omega_{ij}^{l} \sim \Gaussian{0, \dfrac{\sigma_{\omega}^2}{n_l}} \\
+            b_{j}^{l} = \beta_{j}^{l} \sim \Gaussian{0, \sigma_b^2}
+        \end{dcases}
+    \end{align}
+NTK parametrization(式(\ref{ntk_parametrization}))とstandard parametrization(式(\ref{standard_parametrization}))の主な違いは，逆伝播のダイナミクスにおける正規化の有無である．式(\ref{ntk_parametrization})の場合は逆伝播でも正規化されるが，式(\ref{standard_parametrization})の場合は逆伝播は正規化されない．しかし，式(\ref{ntk_parametrization})はNNの学習にはあまり使用されない．ネットワークが表す関数は式(\ref{ntk_parametrization})でも式(\ref{standard_parametrization})でも同じだが，勾配降下法における訓練のダイナミクスは一般に2つのparametrizationで異なる．しかし，両parametrizationにおけるスケーリングの違いは適切な層ごとの学習率を選ぶことで吸収できることがわかっている．具体的には，まず式(\ref{ntk_parametrization})については$\bm{W}^l, \bm{b}^l$について独立した層ごとに以下のように学習率を定める．
+\begin{align}
+    \label{ntk_lr}
+    \eta_{\mathrm{NTK}, W}^l = \dfrac{n_l}{n_{\max}\sigma_{\omega}^2}\eta_0 \quad\mbox{and}\quad \eta_{\mathrm{NTK}, b}^l = \dfrac{n_l}{n_{\max}\sigma_{b}^2}\eta_0
+\end{align}
+ここで，$\eta_0$は層によらない学習率であるとする．式(\ref{standard_parametrization})の学習率を$\eta_{\mathrm{std}} = \eta_0 / n_{\max} \ (n_{\max} = \max n_l)$とすると，両parametrizationにおける学習のダイナミクスは一致する．また，式(\ref{ntk_lr})の両学習率における$\eta_0$の乗法因子を層ごとのJacobianに組み込むことで，定理 \ref{statement_ntk} は式(\ref{ntk_lr})で定義された学習率を持つNTK networkに対しても適用できる．これらの学習率で設定されたNTK networkは，学習率$\eta_{\mathrm{std}}$を持つstandard networkと同一の学習のダイナミクスを示すため，十分に広い幅をもつNTK networkの学習のダイナミクスが線形化されるという事実は，standard networkに対しても適用される．
+
+\subsection{線形化されたNNの収束と勾配降下におけるNTKの安定性}
+式(\ref{standard_parametrization})のように表記されたNNについて，NTKを用いてバッチ勾配降下における大域的収束性と，NTKの安定性を示す．若干の変更によりこの証明は式(\ref{ntk_parametrization})にも適用可能である．今，以下の4つの仮定を置く:
+\begin{enumerate}
+    \item NNのすべての中間層の幅が同一($n_1=\cdots=n_L=n$)である (本証明は$\min\curly{n_1,\ldots,n_L} \rightarrow \infty$のとき，$n_l / n_{l'} \rightarrow \alpha_{l, l'} \in \parentheness{0, \infty}$の設定に自然に拡張できる)．
+    \item 解析的NTK$\bm{\Theta}$がフルランク行列で，$0 < \lambda_{\min} < \lambda_{\max} < \infty$．
+    \item 訓練データ集合$\parentheness{\mathcal{X}, \mathcal{Y}}$がコンパクト集合で覆われている．また，任意の$\bm{x}, \tilde{\bm{x}} \in \mathcal{X}$において$\bm{x} \neq \tilde{\bm{x}}$とする．
+    \item 活性化関数$\varphi$は以下の関係を満たす:
+    \begin{align}
+        \label{act_func_lipschitz}
+        \verbar{\varphi(0)}, \quad \norm{\varphi'}_{\infty}, \quad \sup_{\bm{x} \neq \tilde{\bm{x}}} \dfrac{\verbar{\varphi'(\bm{x}) - \varphi'(\tilde{\bm{x}})}}{\verbar{\bm{x} - \tilde{\bm{x}}}} < \infty
+    \end{align}
+\end{enumerate}
+仮定2は$\mathcal{X} \subseteq \curly{\bm{x} \in \RR^{n_0}:\norm{\bm{x}}_2 = 1}$かつ$\varphi(\bm{x})$が大きな$\bm{x}$に対して多項式的に増加しないときに実際に成立する(\citealp{jacot2018neural})．本証明において$C>0$は$L, \verbar{\mathcal{X}}, (\sigma_w^2, \sigma_b^2)$に依存するが，$n$には依存しない定数を表す．
+
+$\bm{\theta}_t$を時間$t$におけるパラメータとする．本証明では以下の略記を使用する．
+\begin{align}
+    f(\bm{\theta}_t) &= f(\mathcal{X}, \bm{\theta}_t) \in \RR^{\verbar{\mathcal{X}} \times k} \\
+    g(\bm{\theta}_t) &= f(\mathcal{X}, \bm{\theta}_t) - \mathcal{Y} \in \RR^{\verbar{\mathcal{X}} \times k} \\
+    J(\bm{\theta}_t) &= \nabla_{\bm{\theta}}f(\bm{\theta}_t) \in \RR^{k\verbar{\mathcal{X}} \times \verbar{\bm{\theta}}}
+\end{align}
+standard parametrizationにおける経験的NTKと解析的NTKは以下のように定義される．
+\begin{align}
+    \begin{dcases}
+        \hat{\bm{\Theta}}_t \coloneqq \hat{\bm{\Theta}}_t(\mathcal{X}, \mathcal{X}) = \dfrac{1}{n} J(\bm{\theta}_t)J(\bm{\theta}_t)^\top \\
+        \bm{\Theta} \coloneqq \lim_{n \rightarrow \infty} \hat{\bm{\Theta}}_0 \quad \mbox{in probability}
+    \end{dcases}
+\end{align}
+解析的NTKの経験的NTKへの収束は \citet{yang2019scaling} が厳密に証明している．次に，MSEを以下のとおり与える:
+\begin{align}
+    \LL(t) = \dfrac{1}{2}\norm{g(\bm{\theta})_t}_2^2
+\end{align}
+$f(\bm{\theta}_t)$は平均$0$，共分散$\mathcal{K}$のガウス分布に収束することから，任意の小さな$\delta_0 > 0$に対し確率$(1 - \delta_0)$以上で$\norm{g(\bm{\theta}_0)}_2 < R_0$を満たすような定数$R_0 > 0$と$n_0$が存在することを示すことができる(ただし，$R_0$と$n_0$は$\delta_0, \ \verbar{\mathcal{X}}, \ \mathcal{K}$に依存する)．
+
+勾配降下法の更新式は以下の式で与えられる．
+\begin{align}
+    \bm{\theta}_{t+1} = \bm{\theta}_t - \eta J(\bm{\theta}_t)^\top g(\bm{\theta}_t)
+\end{align}
+勾配流(gradient flow)は以下の式で与えられる．
+\begin{align}
+    \dot{\bm{\theta}}_t = -J(\bm{\theta}_t)^\top g(\bm{\theta}_t)
+\end{align}
+離散的な勾配降下法と勾配流の両方に対し，NNの学習の収束とNTKの安定性を証明する．両証明はJacobian $J(\bm{\theta})$の局所リプシッツ性(local Lipschitzness)に依存する．
+
+\begin{lem}[Jacobianの局所リプシッツ性]
+    \label{jacob_local_lipschitz}
+    ある定数$K>0$が存在して，任意の$C>0$に対してランダムな初期化に関して高い確率で以下が成立する．
+    \begin{align}
+        \begin{dcases}
+            \dfrac{1}{\sqrt{n}}\norm{J(\bm{\theta}) - J(\tilde{\bm{\theta}})}_F &\leq K\norm{\bm{\theta} - \tilde{\bm{\theta}}}_2 \\
+            \dfrac{1}{\sqrt{n}}\norm{J(\bm{\theta})} &\leq K
+        \end{dcases}
+        , \qquad \forall\bm{\theta}, \tilde{\bm{\theta}} \in B(\bm{\theta}_0, Cn^{-\frac{1}{2}})
+    \end{align}
+    ここで，$B(\bm{\theta}_0, R) \coloneqq \curly{\bm{\theta}:\norm{\bm{\theta} - \bm{\theta}_0}_2 < R}$である．
+\end{lem}
+\begin{proof}
+    証明はランダムガウス行列の作用素ノルムの上界による．
+    \begin{thm}[(\citealp{vershynin2010introduction} 系5.35)]
+        \label{random_gauss_mat_op_norm}
+        $\bm{A} = \bm{A}_{N, n}$を$N \times n$のランダム行列とし，各成分が独立な標準ガウス分布に従うとする．このとき，任意の$t \geq 0$に対し，確率$1 - 2\exp\parentheness{-t^2/2}$以上で以下が成立する．
+        \begin{align}
+            \sqrt{N} - \sqrt{n} - t \leq \lambda_{\min}(\bm{A}) \leq \lambda_{\max}(\bm{A}) \leq \sqrt{N} + \sqrt{n} + \sqrt{t}
+        \end{align}
+    \end{thm}
+    $t \geq 1$に対し，
+    \begin{align}
+        \delta^l (\bm{\theta}, \bm{x}) &\coloneqq \Delta_{h^l(\bm{\theta}, \bm{x})}f^{L+1}(\bm{\theta}, \bm{x}) \in \RR^{kn} \\
+        \delta^l (\bm{\theta}, \mathcal{X}) &\coloneqq \Delta_{h^l(\bm{\theta}, \mathcal{X})}f^{L+1}(\bm{\theta}, \mathcal{X}) \in \RR^{{(k \times \verbar{\mathcal{X})}} \times (n \times \verbar{\mathcal{X}})}
+    \end{align}
+    とする．$\bm{\theta} = \curly{\bm{W}^l, \bm{b}^l}, \ \tilde{\bm{\theta}} = \curly{\tilde{\bm{W}}^l, \tilde{\bm{b}}^l}$を$B(\bm{\theta}_0, C/\sqrt{n})$の任意の2点とする．定理 \ref{random_gauss_mat_op_norm} と三角不等式により，$2 \leq l \leq L+1$のときランダムな初期化に関して高い確率で以下が成立する．
+    \begin{align}
+        \norm{\bm{W}^1}_{\mathrm{op}}, \quad \norm{\tilde{\bm{W}}^1}_{\mathrm{op}} \leq 3\sigma_{\omega}\dfrac{\sqrt{n}}{\sqrt{n_0}}, \quad \norm{\bm{W}^l}_{\mathrm{op}}, \quad \norm{\tilde{\bm{W}}^l}_{\mathrm{op}} \leq 3\sigma_{\omega}
+    \end{align}
+    上記と活性化関数$\varphi$の仮定(式(\ref{act_func_lipschitz}))を用いると，$\sigma_{\omega}^2, \sigma_{b}^2, \verbar{\mathcal{X}}, L$に依存する定数$K_1$が存在して，ランダムな初期化に関して高い確率で以下が成立することを示すことができる．
+    \begin{align}
+        n^{-\frac{1}{2}}\norm{x^l(\bm{\theta}, \mathcal{X})}_2, \quad \norm{\delta^l (\bm{\theta}, \mathcal{X})}_2 &\leq K_1 \\
+        n^{-\frac{1}{2}}\norm{x^l(\bm{\theta}, \mathcal{X}) - x^l(\tilde{\bm{\theta}}, \mathcal{X})}_2, \quad \norm{\delta^l (\bm{\theta}, \mathcal{X}) - \delta^l (\tilde{\bm{\theta}}, \mathcal{X})}_2 &\leq K_1\norm{\tilde{\bm{\theta}} - \bm{\theta}}_2
+    \end{align}
+    補題 \ref{jacob_local_lipschitz} はこれら2つの不等式から従う．実際，ランダムな初期化に関して高い確率で以下が成立する．
+    \begin{align}
+        \norm{J(\bm{\theta})}_F^2 &= \sum_l \norm{J(\bm{W}^l)}_F^2 + \norm{J(\bm{b}^l)}_F^2 \\
+        &= \sum_l \sum_{\bm{x} \in \mathcal{X}} \norm{x^{l-1}(\bm{\theta}, \bm{x})\delta^l (\bm{\theta}, \bm{x})^\top}_F^2 + \norm{\delta^l (\bm{\theta}, \bm{x})^\top}_F^2 \\
+        &\leq \sum_l \sum_{\bm{x} \in \mathcal{X}} (1 + \norm{x^{l-1}(\bm{\theta}, \bm{x})}_F^2)\norm{\delta^l (\bm{\theta}, \bm{x})^\top}_F^2 \\
+        &\leq \sum_l (1 + K_1^2 n)\sum_{\bm{x}} \norm{\delta^l (\bm{\theta}, \bm{x})^\top}_F^2 \\
+        &\leq \sum_l K_1^2 (1 + K_1^2 n) \\
+        &\leq 2(L + 1)K_1^4 n
+    \end{align}
+    同様に以下が成立する．
+    \begin{align}
+        \norm{J(\bm{\theta}) - J(\tilde{\bm{\theta}})}_F^2 &= \sum_l \sum_{\bm{x} \in \mathcal{X}} \norm{x^{l-1}(\bm{\theta}, \bm{x})\delta^l (\bm{\theta}, \bm{x})^\top - x^{l-1}(\tilde{\bm{\theta}}, \bm{x})\delta^l (\tilde{\bm{\theta}}, \bm{x})^\top}_F^2 + \norm{\delta^l (\bm{\theta}, \bm{x})^\top - \delta^l (\tilde{\bm{\theta}}, \bm{x})^\top}_F^2 \\
+        &\leq \parentheness{\sum_l (K_1^4 n + K_1^4 n) + K_12}\norm{\bm{\theta} - \tilde{\bm{\theta}}}_2 \\
+        &\leq 3(L + 1)K_1^4 n\norm{\bm{\theta} - \tilde{\bm{\theta}}}_2
+    \end{align}
+\end{proof}

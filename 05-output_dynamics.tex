@@ -1,6 +1,6 @@
-\section{NTKを用いたネットワークの出力ダイナミクス}
+\section{NTKを用いたNNの出力ダイナミクス}
 \label{NTK_dynamics}
-本節ではニューラルネットワークの出力を1次のテイラー展開 (Taylor expansion) で置き換えることにより，線形化されたニューラルネットワーク (linearized neural network) の学習のダイナミクスを記述する．時間 $t$ 時点における線形化されたネットワークの出力を $f_t^{lin}(\bm{x})$ とすると，1次のテイラー展開は，
+本節ではNNの出力を1次のテイラー展開 (Taylor expansion) で置き換えることにより，線形化されたNN (linearized neural network; LNN) の学習のダイナミクスを記述する．時間 $t$ 時点におけるLNNの出力を $f_t^{lin}(\bm{x})$ とすると，1次のテイラー展開は，
 \begin{align}
     f_t^{lin}(\bm{x}) \equiv f_0(\bm{x}) + \nabla_{\bm{\theta}}f_0(\bm{x})|_{\bm{\theta}=\bm{\theta}_0}\bm{\omega}_t \label{f_t_lin}
 \end{align}
@@ -14,14 +14,14 @@
 \end{align}
 が得られる．つまり，$f_t^{lin}(\mathcal{X})$ は，
 \begin{align}
-    f_t^{lin}(\mathcal{X}) &= f_0(\mathcal{X}) - \nabla_{\bm{\theta}}f_0(\mathcal{X})\nabla_{\bm{\theta}}f_0(\mathcal{X})^{\mathrm{T}}\hat{\Theta}_{0}^{-1}\left(I - e^{-\eta\hat{\Theta}_0 t/k|\mathcal{D}|}\right)(f_0(\mathcal{X})- \mathcal{Y}) \\
-    &= f_0(\mathcal{X}) - \hat{\Theta}_0 \hat{\Theta}_0^{-1}\left(I - e^{-\eta\hat{\Theta}_0 t/k|\mathcal{D}|}\right)(f_0(\mathcal{X})- \mathcal{Y}) \\
-    &= f_0(\mathcal{X}) - \left(I - e^{-\eta\hat{\Theta}_0 t/k|\mathcal{D}|}\right)(f_0(\mathcal{X})- \mathcal{Y}) \\
-    &= \left(I - e^{-\eta\hat{\Theta}_0 t/k|\mathcal{D}|}\right)\mathcal{Y} + e^{-\eta\hat{\Theta}_0 t/k|\mathcal{D}|}f_0(\mathcal{X}) \label{ntk_output}
+    f_t^{lin}(\mathcal{X}) &= f_0(\mathcal{X}) - \nabla_{\bm{\theta}}f_0(\mathcal{X})\nabla_{\bm{\theta}}f_0(\mathcal{X})^{\mathrm{T}}\hat{\NTK}_{0}^{-1}\left(I - e^{-\eta\hat{\NTK}_0 t/k|\mathcal{D}|}\right)(f_0(\mathcal{X})- \mathcal{Y}) \\
+    &= f_0(\mathcal{X}) - \hat{\NTK}_0 \hat{\NTK}_0^{-1}\left(I - e^{-\eta\hat{\NTK}_0 t/k|\mathcal{D}|}\right)(f_0(\mathcal{X})- \mathcal{Y}) \\
+    &= f_0(\mathcal{X}) - \left(I - e^{-\eta\hat{\NTK}_0 t/k|\mathcal{D}|}\right)(f_0(\mathcal{X})- \mathcal{Y}) \\
+    &= \left(I - e^{-\eta\hat{\NTK}_0 t/k|\mathcal{D}|}\right)\mathcal{Y} + e^{-\eta\hat{\NTK}_0 t/k|\mathcal{D}|}f_0(\mathcal{X}) \label{ntk_output}
 \end{align}
 と書ける．$\mathcal{X}$ 以外の入力 $\bm{x}'$ に対する出力 $f_t^{lin}(\bm{x}')$ は，
 \begin{align}
-    f_t^{lin}(\bm{x}') &= f_0(\bm{x}') - \nabla_{\bm{\theta}}f_0(\bm{x}')\nabla_{\bm{\theta}}f_0(\mathcal{X})^{\mathrm{T}}\hat{\Theta}_{0}^{-1}\left(I - e^{-\eta\hat{\Theta}_0 t/k|\mathcal{D}|}\right)(f_0(\mathcal{X})- \mathcal{Y}) \\
-    &= f_0(\bm{x}') - \hat{\Theta}_0(\bm{x}', \mathcal{X}) \hat{\Theta}_0^{-1}\left(I - e^{-\eta\hat{\Theta}_0 t/k|\mathcal{D}|}\right)(f_0(\mathcal{X})- \mathcal{Y})
+    f_t^{lin}(\bm{x}') &= f_0(\bm{x}') - \nabla_{\bm{\theta}}f_0(\bm{x}')\nabla_{\bm{\theta}}f_0(\mathcal{X})^{\mathrm{T}}\hat{\NTK}_{0}^{-1}\left(I - e^{-\eta\hat{\NTK}_0 t/k|\mathcal{D}|}\right)(f_0(\mathcal{X})- \mathcal{Y}) \\
+    &= f_0(\bm{x}') - \hat{\NTK}_0(\bm{x}', \mathcal{X}) \hat{\NTK}_0^{-1}\left(I - e^{-\eta\hat{\NTK}_0 t/k|\mathcal{D}|}\right)(f_0(\mathcal{X})- \mathcal{Y})
 \end{align}
-と書ける．したがって，初期化時のネットワークの出力 $f_0(\mathcal{X}), \ f_0(\bm{x}')$ とNTK $\hat{\Theta}_0, \ \hat{\Theta}_0(\bm{x}',\mathcal{X})$を計算すれば， 勾配降下法を実行することなく，線形化されたニューラルネットワークの各時間における学習結果を計算できるということである．通常であれば，このようにネットワークの出力を構成したとしても，各時間における NTK $\hat{\Theta}_t$ を計算する必要があり，何もメリットがない．しかし，4.3節で述べた定理\ref{statement_ntk}により，中間層の幅を十分に大きく取れば，任意の学習時間における NTK $\hat{\Theta}_t$ を $\hat{\Theta}_0$ で近似することができるため，関数空間内においてネットワークを線形化することができる．
+と書ける．したがって，初期化時のNNの出力 $f_0(\mathcal{X}), \ f_0(\bm{x}')$ とNTK $\hat{\NTK}_0, \ \hat{\NTK}_0(\bm{x}',\mathcal{X})$を計算すれば， 勾配降下法を実行することなく，LNNの各時間における学習結果を計算できるということである．通常であれば，このようにNNの出力を構成したとしても，各時間における NTK $\hat{\NTK}_t$ を計算する必要があり，何もメリットがない．しかし，4.3節で述べた定理\ref{statement_ntk}により，中間層の幅を十分に大きく取れば，任意の学習時間における NTK $\hat{\NTK}_t$ を $\hat{\NTK}_0$ で近似することができるため，関数空間内においてNNを線形化することができる．

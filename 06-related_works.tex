@@ -1,7 +1,43 @@
 \section{NTKの関連研究}
+各小節で紹介される論文の記法は元論文に準拠する．
+
 \subsection{NTKの関連研究の概要}
-NTKは\citet{jacot2018neural}によって提案されたニューラルネットワークの大域収束性の保証に貢献する理論である．近年，\citet{cho2009kernel}により深層ニューラルネットワークの学習に対応するカーネル関数が導出され，\citet{neal2012bayesian};  \citet{lee2018deep}がそのカーネル関数をガウス過程 (gaussian process; GP) の共分散関数として使用することで，中間層の幅を無限に近づけたニューラルネットワークを表現することができることを確認した．NTKは，ニューラルネットワークの各層の幅を無限に近づけることで，NTKというグラム行列が決定的 (deterministic) になるということを証明し，特定の条件下においてその行列の正定値性を示すことで，大域的最適解への線形収束を保証した．\citet{lee2019wide}はある有限の学習率の設定のもと，モデルの出力のダイナミクスがNTKによって決定されるダイナミクスに従うことを示した．NTKの性質に関する解析も進んでおり，入力の違いに対する安定性と近似能力が優れていることが示されている(\citealp{bietti2019inductive})．\citet{amari2020atf}は\citet{jacot2018neural}が与えているNTKの数学的に複雑な内容について，任意の目的関数がランダムに生成される目的関数のごく近傍に存在することを幾何的に示した．また，NTKは層の幅を十分に大きくすることを前提としているが，NTKにおける層の深さの役割に関する研究も進んでいる．\citet{yang2019fine}は識別したい関数の複雑さに応じて最適な深さが存在することを示している．\citet{hanin2019finite}は層の幅と深さの比率を固定して十分に大きくとったときのNTKの平均と分散を研究している．
+NTKは\citealp{jacot2018neural}によって提案されたNNの大域収束性の保証に貢献する理論である．近年，\citet{cho2009kernel}により深層NN (deep neural network; DNN)の学習に対応するカーネル関数が導出され，\citet{neal2012bayesian};  \citet{lee2018deep}がそのカーネル関数をガウス過程 (gaussian process; GP) の共分散関数として使用することで，中間層の幅を無限に近づけたNNを表現することができることを確認した．NTKは，NNの各層の幅を無限に近づけることで，NTKというグラム行列が決定的 (deterministic) になるということを証明し，特定の条件下においてその行列の正定値性を示すことで，大域的最適解への線形収束を保証した．\citet{lee2019wide}はある有限の学習率の設定のもと，モデルの出力のダイナミクスがNTKによって決定されるダイナミクスに従うことを示した．NTKの性質に関する解析も進んでおり，入力の違いに対する安定性と近似能力が優れていることが示されている(\citealp{bietti2019inductive})．\citet{amari2020any}は \citet{jacot2018neural}が与えているNTKの数学的に複雑な内容について，任意の目的関数がランダムに生成される目的関数のごく近傍に存在することを幾何的に示した．また，NTKは層の幅を十分に大きくすることを前提としているが，NTKにおける層の深さの役割に関する研究も進んでいる．\citet{yang2019fine}は識別したい関数の複雑さに応じて最適な深さが存在することを示している．\citet{hanin2019finite}は層の幅と深さの比率を固定して十分に大きくとったときのNTKの平均と分散を研究している．
 
-また，\citet{jacot2018neural}が提案したNTKが適用される構造は通常のニューラルネットワークのみであり，畳み込みニューラルネットワーク (convolutional neural network; CNN)については\citet{Arora2019OnEC}がConvolutional NTK (CNTK) を，自己符号化器 (autoencoder; AE)については\citet{nguyen2019benefits}が対応するNTK，グラフニューラルネットワーク (graph neural network; GNN)については\citet{du2019graph}がGraph NTK (GNTK) を提案している．
+また，\citet{jacot2018neural}が提案したNTKが適用される構造は通常の全結合NN (fully-connected neural network; FCN) のみであり，畳み込みNN (convolutional neural network; CNN)については \citet{Arora2019OnEC}がConvolutional NTK (CNTK) を，自己符号化器 (autoencoder; AE)については \citet{nguyen2019benefits}が対応するNTK，グラフNN (graph neural network; GNN)については \citet{du2019graph}がGraph NTK (GNTK) を提案している．
 
-\subsection{Fast Finite Width Neural Tangent Kernel}
+\subsection{Fast Finite Width Neural Tangent Kernel (ICLR2022)}
+\subsubsection{記法}
+本論文における記法の定義は以下のとおりとする:
+\begin{itemize}
+    \item $\red{\bmrm{N}}$ : NNに入力するデータのバッチサイズ．
+    \begin{itemize}
+        \item $\red{n}$ : 1から$\red{\bmrm{N}}$のバッチのインデックス．
+    \end{itemize}
+    \item $\blue{\bmrm{O}}$ : $\red{\bmrm{N}}=1$に対するNNの出力次元(クラス数など)．
+    \begin{itemize}
+        \item $\blue{o}$ : 1から$\blue{\bmrm{O}}$のインデックス．
+    \end{itemize}
+    \item $\cyan{\bmrm{W}}$ : FCNの幅，あるいはCNNのチャンネル数．
+    \item $\violet{\bmrm{L}}$ : 学習可能なパラメータ行列の数．weight sharingがない場合はNNの深さと同義．
+    \begin{itemize}
+        \item $\violet{l}$ : 0から$\violet{\bmrm{L}}$のインデックス．
+    \end{itemize}
+    \item $\maroon{\bmrm{K}}$ : NNのprimitive (計算グラフのノード)の数．weight sharingがない場合はNNの深さと同義で，$\violet{\bmrm{L}}$に比例する．
+    \begin{itemize}
+        \item $\maroon{k}$ : 1から$\maroon{\bmrm{K}}$のインデックス．
+    \end{itemize}
+    \item $\teal{\bmrm{D}}$ : CNNの入力層と各中間層に含まれるピクセルの総数(例: $32 \times 32$の画像なら1024, FCNでは1)．層ごとに空間サイズが変わらないように，SAMEまたはCIRCULAR padding，unit stride，no dilationとしている．
+    \item $\cfblue{\bmrm{F}}$ : CNNの畳み込みフィルタのサイズ(例: $3 \times 3$フィルターなら9, FCNでは1)．
+    \item $\olive{\bmrm{Y}}$ : primitive $y$の出力サイズの合計(例: CNNの場合$\olive{\bmrm{Y}}=\teal{\bmrm{D}}\cyan{\bmrm{W}}$，FCNの場合$\olive{\bmrm{Y}}=\cyan{\bmrm{W}}$)．状況に応じて単一のprimitiveの出力サイズ，または全primitiveの出力サイズの合計を表す．
+    \begin{itemize}
+        \item $\olive{y}$ : 文脈に応じて中間primitive出力，または中間primitiveをパラメータ$y\parentheness{\bm{\theta}^l}$の関数とする．
+    \end{itemize}
+    \item $\dblue{\bmrm{C}}$ : primitive Jacobian $\partial y / \partial\bm{\theta}$が特定の構造を持つ軸のサイズ($\dblue{\bmrm{C}}$は多くの場合，$\olive{\bmrm{Y}}$に等しいか，それを占める大きな割合，例えば$\cyan{\bmrm{W}}$になる)．
+    \begin{itemize}
+        \item $\dblue{c}$ : 1から$\dblue{\bmrm{C}}$の構造軸に沿ったインデックス．
+    \end{itemize}
+\end{itemize}
+
+\subsubsection{概要}
+NTKはNNの振る舞いを理解するために重要な役割を果たしている．無限幅のNNを考える際，NTKは解析的に計算できる場合があるが，有限幅の場合にはNTKの行列を直接計算する必要があり，これは非常に大きな計算量を要する．
