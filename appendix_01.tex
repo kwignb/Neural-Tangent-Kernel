@@ -25,7 +25,7 @@ NTK parametrization(式(\ref{ntk_parametrization}))とstandard parametrization(�
 ここで，$\eta_0$は層によらない学習率であるとする．式(\ref{standard_parametrization})の学習率を$\eta_{\mathrm{std}} = \eta_0 / n_{\max} \ (n_{\max} = \max n_l)$とすると，両parametrizationにおける学習のダイナミクスは一致する．また，式(\ref{ntk_lr})の両学習率における$\eta_0$の乗法因子を層ごとのJacobianに組み込むことで，定理 \ref{statement_ntk} は式(\ref{ntk_lr})で定義された学習率を持つNTK networkに対しても適用できる．これらの学習率で設定されたNTK networkは，学習率$\eta_{\mathrm{std}}$を持つstandard networkと同一の学習のダイナミクスを示すため，十分に広い幅をもつNTK networkの学習のダイナミクスが線形化されるという事実は，standard networkに対しても適用される．
 
 \subsection{線形化されたNNの収束と勾配降下におけるNTKの安定性}
-式(\ref{standard_parametrization})のように表記されたNNについて，NTKを用いてバッチ勾配降下における大域的収束性と，NTKの安定性を示す．若干の変更によりこの証明は式(\ref{ntk_parametrization})にも適用可能である．今，以下の4つの仮定を置く:
+式(\ref{standard_parametrization})のように表記されたNNについて，NTKを用いてバッチ勾配降下における大域的収束性と，NTKの安定性を示す．若干の変更によりこの証明は式(\ref{ntk_parametrization})にも適用可能である．今，以下の4つの仮定を置く．
 \begin{enumerate}
     \item NNのすべての中間層の幅が同一($n_1=\cdots=n_L=n$)である (本証明は$\min\curly{n_1,\ldots,n_L} \rightarrow \infty$のとき，$n_l / n_{l'} \rightarrow \alpha_{l, l'} \in \parentheness{0, \infty}$の設定に自然に拡張できる)．
     \item 解析的NTK$\bm{\Theta}$がフルランク行列で，$0 < \lambda_{\min} < \lambda_{\max} < \infty$．
@@ -71,6 +71,7 @@ $f(\bm{\theta}_t)$は平均$0$，共分散$\mathcal{K}$のガウス分布に収�
     \label{jacob_local_lipschitz}
     ある定数$K>0$が存在して，任意の$C>0$に対してランダムな初期化に関して高い確率で以下が成立する．
     \begin{align}
+        \label{eq:l1_1}
         \begin{dcases}
             \dfrac{1}{\sqrt{n}}\norm{J(\bm{\theta}) - J(\tilde{\bm{\theta}})}_F &\leq K\norm{\bm{\theta} - \tilde{\bm{\theta}}}_2 \\
             \dfrac{1}{\sqrt{n}}\norm{J(\bm{\theta})} &\leq K
@@ -83,7 +84,7 @@ $f(\bm{\theta}_t)$は平均$0$，共分散$\mathcal{K}$のガウス分布に収�
     証明はランダムガウス行列の作用素ノルムの上界による．
     \begin{thm}[(\citealp{vershynin2010introduction} 系5.35)]
         \label{random_gauss_mat_op_norm}
-        $\bm{A} = \bm{A}_{N, n}$を$N \times n$のランダム行列とし，各成分が独立な標準ガウス分布に従うとする．このとき，任意の$t \geq 0$に対し，確率$1 - 2\exp\parentheness{-t^2/2}$以上で以下が成立する．
+        $\bm{A} = \bm{A}_{N, n}$を$N \times n$のランダム行列とし，各成分が独立な標準ガウス分布に従うとする．このとき，任意の$t \geq 0$に対し，確率$1 - 2\exp\parentheness{-t^2/2}$以上で以下が成り立つ．
         \begin{align}
             \sqrt{N} - \sqrt{n} - t \leq \lambda_{\min}(\bm{A}) \leq \lambda_{\max}(\bm{A}) \leq \sqrt{N} + \sqrt{n} + \sqrt{t}
         \end{align}
@@ -102,7 +103,7 @@ $f(\bm{\theta}_t)$は平均$0$，共分散$\mathcal{K}$のガウス分布に収�
         n^{-\frac{1}{2}}\norm{x^l(\bm{\theta}, \mathcal{X})}_2, \quad \norm{\delta^l (\bm{\theta}, \mathcal{X})}_2 &\leq K_1 \\
         n^{-\frac{1}{2}}\norm{x^l(\bm{\theta}, \mathcal{X}) - x^l(\tilde{\bm{\theta}}, \mathcal{X})}_2, \quad \norm{\delta^l (\bm{\theta}, \mathcal{X}) - \delta^l (\tilde{\bm{\theta}}, \mathcal{X})}_2 &\leq K_1\norm{\tilde{\bm{\theta}} - \bm{\theta}}_2
     \end{align}
-    補題 \ref{jacob_local_lipschitz} はこれら2つの不等式から従う．実際，ランダムな初期化に関して高い確率で以下が成立する．
+    補題 \ref{jacob_local_lipschitz} はこれら2つの不等式から従う．実際，ランダムな初期化に関して高い確率で以下が成り立つ．
     \begin{align}
         \norm{J(\bm{\theta})}_F^2 &= \sum_l \norm{J(\bm{W}^l)}_F^2 + \norm{J(\bm{b}^l)}_F^2 \\
         &= \sum_l \sum_{\bm{x} \in \mathcal{X}} \norm{x^{l-1}(\bm{\theta}, \bm{x})\delta^l (\bm{\theta}, \bm{x})^\top}_F^2 + \norm{\delta^l (\bm{\theta}, \bm{x})^\top}_F^2 \\
@@ -111,10 +112,82 @@ $f(\bm{\theta}_t)$は平均$0$，共分散$\mathcal{K}$のガウス分布に収�
         &\leq \sum_l K_1^2 (1 + K_1^2 n) \\
         &\leq 2(L + 1)K_1^4 n
     \end{align}
-    同様に以下が成立する．
+    同様に以下が成り立つ．
     \begin{align}
         \norm{J(\bm{\theta}) - J(\tilde{\bm{\theta}})}_F^2 &= \sum_l \sum_{\bm{x} \in \mathcal{X}} \norm{x^{l-1}(\bm{\theta}, \bm{x})\delta^l (\bm{\theta}, \bm{x})^\top - x^{l-1}(\tilde{\bm{\theta}}, \bm{x})\delta^l (\tilde{\bm{\theta}}, \bm{x})^\top}_F^2 + \norm{\delta^l (\bm{\theta}, \bm{x})^\top - \delta^l (\tilde{\bm{\theta}}, \bm{x})^\top}_F^2 \\
         &\leq \parentheness{\sum_l (K_1^4 n + K_1^4 n) + K_12}\norm{\bm{\theta} - \tilde{\bm{\theta}}}_2 \\
         &\leq 3(L + 1)K_1^4 n\norm{\bm{\theta} - \tilde{\bm{\theta}}}_2
     \end{align}
+\end{proof}
+
+勾配降下法のケースについて証明する．
+\begin{thm}[勾配降下法]
+    先述の4つの仮定を満たしているとする．任意の$\delta_0 > 0, \ \eta_0 < \eta_{\mathrm{critical}}$に対して，ある定数$R_0 > 0, \ N \in \NN, \ K > 1$が存在して，任意の$n \geq N$に対して学習率$\eta = \eta_0 / n$の勾配流を適用したとき，ランダムな初期化に関して確率$(1- \delta_0)$以上で以下が成り立つ．
+    \begin{align}
+        \label{eq:a3_1}
+        \begin{dcases}
+            \norm{g(\bm{\theta}_t)}_2 \leq \parentheness{1 - \dfrac{\eta_0 \lambda_{\min}}{3}}^t R_0 \\
+            \sum_{j=1}^t \norm{\bm{\theta}_j - \bm{\theta}_{j-1}}_2 \leq \dfrac{\eta_0 KR_0}{\sqrt{n}} \sum_{j=1}^t \parentheness{1 - \dfrac{\eta_0 \lambda_{\min}}{3}}^{j-1} \leq \dfrac{3KR_0}{\lambda_{\min}}n^{-\frac{1}{2}}
+        \end{dcases}
+    \end{align}
+    かつ
+    \begin{align}
+        \label{eq:a3_2}
+        \sup_t \norm{\hat{\bm{\Theta}_0} - \hat{\bm{\Theta}_0}}_F \leq \dfrac{6K^3 R_0}{\lambda_{\min}}n^{-\frac{1}{2}}
+    \end{align}
+\end{thm}
+\begin{proof}
+    任意の$n \geq n_0$に対し，ランダムな初期化に関して確率$(1 - \delta_0 / 10)$以上で以下が成り立つような$R_0, n_0$が存在する．
+    \begin{align}
+        \label{eq:a3_3}
+        \norm{g(\bm{\theta}_0)}_2 < R_0
+    \end{align}
+    補題 \ref{jacob_local_lipschitz} において$C = \frac{3KR_0}{\lambda_{\min}}$とする．式(\ref{eq:a3_1})を帰納法により証明する．任意の$n \geq n_1$に対して，ランダムな初期化に関して確率$(1 - \delta_0 / 5)$以上で式(\ref{eq:l1_1})と式(\ref{eq:a3_3})が成り立つような$n_1 > n_0$を選ぶ．$t=0$の場合は明らかであり，$t$のときに式(\ref{eq:a3_1})が成り立つと仮定する．このとき，帰納法の仮定と式(\ref{eq:l1_1})の二つ目の不等式より，
+    \begin{align}
+        \norm{\bm{\theta}_{t+1} - \bm{\theta}_t}_2 \leq \eta\norm{J(\bm{\theta}_t)}_{\mathrm{op}}\norm{g(\bm{\theta}_t)}_2 \leq \dfrac{K\eta_0}{\sqrt{n}}\parentheness{1 - \dfrac{\eta_0 \lambda_{\min}}{3}}^t R_0
+    \end{align}
+    が成り立ち，これは$t+1$に対する式(\ref{eq:a3_1})における一つ目の不等式を与える．また，これは$j=0,\ldots,t+1$に対して$\norm{\bm{\theta}_j - \bm{\theta}_0}_2 \leq \frac{3KR_0}{\lambda_{\min}}n^{-\frac{1}{2}}$を意味する．二つ目の不等式を証明するため，平均値の定理と$t+1$ステップ目の勾配降下法の更新式を適用する．
+    \begin{align}
+        \norm{g(\bm{\theta}_{t+1})}_2 &= \norm{g(\bm{\theta}_{t+1}) - g(\bm{\theta}_t) + g(\bm{\theta}_t)}_2 \\
+        &= \norm{J(\tilde{\bm{\theta}}_t)(\bm{\theta}_{t+1} - \bm{\theta}_t) + g(\bm{\theta}_t)}_2 \\
+        &= \norm{-\eta J(\tilde{\bm{\theta}}_t)J(\bm{\theta}_t)^\top g(\bm{\theta}_t) + g(\bm{\theta}_t)}_2 \\
+        &\leq \norm{1 - \eta J(\tilde{\bm{\theta}}_t)J(\bm{\theta}_t)^\top}_{\mathrm{op}}\norm{g(\bm{\theta}_t)}_2 \\
+        &\leq \norm{1 - \eta J(\tilde{\bm{\theta}}_t)J(\bm{\theta}_t)^\top}_{\mathrm{op}}\parentheness{1 - \dfrac{\eta_0 \lambda_{\min}}{3}}^t R_0
+    \end{align}
+    ここで，$\tilde{\bm{\theta}}$は$\bm{\theta}_t, \bm{\theta}_{t+1}$間の線形補完である．次に，確率$(1 - \delta_0 / 2)$以上で以下を示す．
+    \begin{align}
+        \norm{1 - \eta J(\tilde{\bm{\theta}}_t)J(\bm{\theta}_t)^\top}_{\mathrm{op}} \leq 1 - \dfrac{\eta_0 \lambda_{\min}}{3}
+    \end{align}
+    これは補題 \ref{jacob_local_lipschitz} によって示すことができる．\citet{yang2019scaling} で示されているように$\hat{\bm{\Theta}}_0 \rightarrow \bm{\Theta}$は確率収束するので，任意の$n \geq n_2$に対して以下の不等式
+    \begin{align}
+        \norm{\bm{\Theta} - \hat{\bm{\Theta}}_0}_F \leq \dfrac{\eta_0 \lambda_{\min}}{3}
+    \end{align}
+    が確率$(1 - \delta_0 / 5)$以上で成り立つような$n_2$が存在する．仮定$\eta_0 < 2(\lambda_{\min} + \lambda_{\max})^{-1}$より，
+    \begin{align}
+        \norm{1 - \eta_0 \bm{\Theta}}_{\mathrm{op}} \leq 1 - \eta_0 \lambda_{\min}
+    \end{align}
+    が成り立つ．したがって，
+    \begin{align}
+        \norm{1 - \eta J(\tilde{\bm{\theta}_t})J(\bm{\theta}_t)^\top}_{\mathrm{op}} &\leq \norm{1 - \eta_0 \bm{\Theta}}_{\mathrm{op}} + \eta_0 \norm{\bm{\Theta} - \hat{\bm{\Theta}}_0}_F + \eta\norm{J(\bm{\theta}_0)J(\bm{\theta}_0)^\top - J(\tilde{\bm{\theta}}_t)J(\bm{\theta}_t)^\top}_{\mathrm{op}} \\
+        &\leq 1 - \eta_0 \lambda_{\min} + \dfrac{\eta_0 \lambda_{\min}}{3} + \eta_0 K^2 (\norm{\bm{\theta}_t - \bm{\theta}_0}_2 + \norm{\tilde{\bm{\theta}}_t - \bm{\theta}_0}_2) \\
+        &\leq 1 - \eta_0 \lambda_{\min} + \dfrac{\eta_0 \lambda_{\min}}{3} + 2\eta_0 K^2 \dfrac{3KR_0}{\lambda_{\min}}\dfrac{1}{\sqrt{n}} \leq 1 - \dfrac{\eta_0 \lambda_{\min}}{3}
+    \end{align}
+    が確率$(1 - \delta_0 / 2)$以上で成り立つ．ただし，
+    \begin{align}
+        n \geq \parentheness{\dfrac{18K^3 R_0}{\lambda_{\min}^2}}^2
+    \end{align}
+    である．したがって，
+    \begin{align}
+        N = \max\curly{n_0, n_1, n_2, \parentheness{\dfrac{18K^3 R_0}{\lambda_{\min}^2}}^2}
+    \end{align}
+    とすればよい．
+
+    式(\ref{eq:a3_2})を示すため，以下のことに注意する．
+    \begin{align}
+        \norm{\hat{\bm{\Theta}}_0 - \hat{\bm{\Theta}}_t}_F &= \dfrac{1}{n}\norm{J(\bm{\theta}_0)J(\bm{\theta}_0)^\top - J(\bm{\theta}_t)J(\bm{\theta}_t)^\top}_F \\
+        &\leq \dfrac{1}{n}\parentheness{\norm{J(\bm{\theta}_0)}_{\mathrm{op}}\norm{J(\bm{\theta}_0)^\top - J(\bm{\theta}_t)^\top}_F + \norm{J(\bm{\theta}_t) - J(\bm{\theta}_0)}_{\mathrm{op}}\norm{J(\bm{\theta}_t)^\top}_F} \\
+        &\leq 2K^2 \norm{\bm{\theta}_0 - \bm{\theta}_t}_2 \\
+        &\leq \dfrac{6K^3 R_0}{\lambda_{\min}}\dfrac{1}{\sqrt{n}}
+    \end{align}
+    ここでは式(\ref{eq:a3_1})の2個目の不等式と式(\ref{eq:l1_1})を用いた．
 \end{proof}
