@@ -122,7 +122,8 @@ $f(\bm{\theta}_t)$は平均$0$，共分散$\mathcal{K}$のガウス分布に収�
 
 勾配降下法のケースについて証明する．
 \begin{thm}[勾配降下法]
-    先述の4つの仮定を満たしているとする．任意の$\delta_0 > 0, \ \eta_0 < \eta_{\mathrm{critical}}$に対して，ある定数$R_0 > 0, \ N \in \NN, \ K > 1$が存在して，任意の$n \geq N$に対して学習率$\eta = \eta_0 / n$の勾配流を適用したとき，ランダムな初期化に関して確率$(1- \delta_0)$以上で以下が成り立つ．
+    \label{thm:ntk_gd}
+    先述の4つの仮定を満たしているとする．任意の$\delta_0 > 0, \ \eta_0 < \eta_{\mathrm{critical}}$に対して，ある定数$R_0 > 0, \ N \in \NN, \ K > 1$が存在して，任意の$n \geq N$に対して学習率$\eta = \eta_0 / n$の勾配流を適用したとき，ランダムな初期化に関して確率$(1- \delta_0)$以上で
     \begin{align}
         \label{eq:a3_1}
         \begin{dcases}
@@ -135,6 +136,7 @@ $f(\bm{\theta}_t)$は平均$0$，共分散$\mathcal{K}$のガウス分布に収�
         \label{eq:a3_2}
         \sup_t \norm{\hat{\bm{\Theta}_0} - \hat{\bm{\Theta}_0}}_F \leq \dfrac{6K^3 R_0}{\lambda_{\min}}n^{-\frac{1}{2}}
     \end{align}
+    が成立する．
 \end{thm}
 \begin{proof}
     任意の$n \geq n_0$に対し，ランダムな初期化に関して確率$(1 - \delta_0 / 10)$以上で以下が成り立つような$R_0, n_0$が存在する．
@@ -190,4 +192,55 @@ $f(\bm{\theta}_t)$は平均$0$，共分散$\mathcal{K}$のガウス分布に収�
         &\leq \dfrac{6K^3 R_0}{\lambda_{\min}}\dfrac{1}{\sqrt{n}}
     \end{align}
     ここでは式(\ref{eq:a3_1})の2個目の不等式と式(\ref{eq:l1_1})を用いた．
+\end{proof}
+次に勾配流のケースについて証明する．
+\begin{thm}[勾配流]
+    先述の4つの仮定を満たしているとする．任意の$\delta_0 > 0$に対して，ある定数$R_0 > 0, \ N \in \NN, \ K > 1$が存在して，任意の$n \geq N$に対して学習率$\eta = \eta_0 / n$の勾配流を適用したとき，ランダムな初期化に関して確率$(1- \delta_0)$以上で
+    \begin{align}
+        \label{eq:a4_1}
+        \begin{dcases}
+            \norm{g(\bm{\theta}_t)}_2 \leq e^{- \frac{\eta_0 \lambda_{\min}}{3}t} R_0 \\
+            \norm{\bm{\theta}_t - \bm{\theta}_0}_2 \leq \dfrac{3KR_0}{\lambda_{\min}} \parentheness{1 - e^{\frac{1}{3}\eta_0 \lambda_{\min}t}}n^{-\frac{1}{2}}
+        \end{dcases}
+    \end{align}
+    かつ
+    \begin{align}
+        \label{eq:a4_2}
+        \sup_t \norm{\hat{\bm{\Theta}_0} - \hat{\bm{\Theta}_0}}_F \leq \dfrac{6K^3 R_0}{\lambda_{\min}}n^{-\frac{1}{2}}
+    \end{align}
+    が成立する．
+\end{thm}
+\begin{proof}
+    最初のステップは定理 \ref{thm:ntk_gd} の証明と同様である．任意の$n \geq n_0$に対して，ランダムな初期化に関して確率$(1- \delta_0 / 10)$以上で$\norm{g(\bm{\theta}_0)}_2 < R_0$が成り立つような$R_0, n_0$が存在する．
+
+    補題 \ref{eq:l1_1} において$C=\frac{3KR_0}{\lambda_{\min}}$とする．定理 \ref{thm:ntk_gd} の証明と同様の議論を用いて，任意の$n \geq n_1$に対してランダムな初期化に関して確率$(1- \delta_0 / 10)$以上で
+    \begin{align}
+        \dfrac{1}{n}J(\bm{\theta})J(\bm{\theta})^\top \succ \dfrac{1}{3}\lambda_{\min}\bm{I}, \quad \forall \bm{\theta} \in B(\bm{\theta}_0, Cn^{-\frac{1}{2}})
+    \end{align}
+    が成り立つような$n_1$が存在することを示せる．
+    \begin{align}
+        t_1 = \inf\curly{t:\norm{\bm{\theta}_t - \bm{\theta}_0}_2 \geq \dfrac{3KR_0}{\lambda_{\min}}n^{-\frac{1}{2}}}
+    \end{align}
+    とする．ここで，$t_1 = \infty$であると主張する．そうでない場合，任意の$t \leq t_1$に対して$\bm{\theta}_t \in B(\bm{\theta}_0, Cn^{-\frac{1}{2}})$かつ
+    \begin{align}
+        \hat{\NTK} \succ \dfrac{1}{3}\lambda_{\min}\bm{I}
+    \end{align}
+    が成り立つ，したがって，
+    \begin{align}
+        \dfrac{d}{dt}(\norm{g(t)}_2^2) = -2\eta_0 g(t)^\top \hat{\NTK}_t g(t) \leq -\dfrac{2}{3}\eta_0 \lambda_{\min}\norm{g(t)}_2^2
+    \end{align}
+    かつ
+    \begin{align}
+        \label{eq:a4_3}
+        \norm{g(t)}_2^2 \leq e^{-\frac{2}{3}\eta_0 \lambda_{\min}t}\norm{g(0)}_2^2 \leq e^{-\frac{2}{3}\eta_0 \lambda_{\min}t} R_0^2
+    \end{align}
+    が成り立つ．次のことに注意する．
+    \begin{align}
+        \dfrac{d}{dt}\norm{\bm{\theta}_t - \bm{\theta}_0}_2 \leq \left\|\dfrac{d}{dt}\bm{\theta}_t\right\|_2 = \dfrac{\eta_0}{n}\norm{J(\bm{\theta}_t)g(t)}_2 \leq \eta_0 K R_0e^{-\frac{2}{3}\eta_0 \lambda_{\min}t}n^{-\frac{1}{2}}
+    \end{align}
+    これは，すべての$t \leq t_1$に対し，
+    \begin{align}
+        \norm{\bm{\theta}_t - \bm{\theta}_0}_2 \leq \dfrac{3KR_0}{\lambda_{\min}}(1 - e^{-\frac{2}{3}\eta_0 \lambda_{\min}t})n^{-\frac{1}{2}} \leq \dfrac{3KR_0}{\lambda_{\min}}(1 - e^{-\frac{2}{3}\eta_0 \lambda_{\min}t_1})n^{-\frac{1}{2}} < \dfrac{3KR_0}{\lambda_{\min}}n^{-\frac{1}{2}}
+    \end{align}
+    が成り立つことを意味する．これは$t_1$の定義に矛盾するため，$t_1 = \infty$とならなければならない．なお，式(\ref{eq:a4_3})は式(\ref{eq:a4_1})の最初の不等式と同一であることに注意する．
 \end{proof}

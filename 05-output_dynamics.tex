@@ -10,18 +10,18 @@
 \end{align}
 となる．$\nabla_{\bm{\theta}}f_0(\bm{x})$は学習を通して一定の値を取るので，損失関数にMSE，すなわち$\ell(\hat{\bm{y}},\bm{y}) = \frac{1}{2}|\hat{\bm{y}}-\bm{y}|_2^2$を使用したとき，式(\ref{ode})について常微分方程式を解けば，
 \begin{align}
-    \bm{\omega}_t = -\nabla_{\bm{\theta}}f_0(\mathcal{X})^{\mathrm{T}}\hat{\Theta}_{0}^{-1}\left(I - e^{-\eta\hat{\Theta}_0 t/k|\mathcal{D}|}\right)(f_0(\mathcal{X})- \mathcal{Y})
+    \bm{\omega}_t = -\nabla_{\bm{\theta}}f_0(\mathcal{X})^{\mathrm{T}}\hat{\Theta}_{0}^{-1}\left(\bm{I} - e^{-\eta\hat{\Theta}_0 t/k|\mathcal{D}|}\right)(f_0(\mathcal{X})- \mathcal{Y})
 \end{align}
-が得られる．つまり，$f_t^{lin}(\mathcal{X})$ は，
+が得られる．ここで$\bm{I}$は$n \times n$の単位行列である．つまり，$f_t^{lin}(\mathcal{X})$ は，
 \begin{align}
-    f_t^{lin}(\mathcal{X}) &= f_0(\mathcal{X}) - \nabla_{\bm{\theta}}f_0(\mathcal{X})\nabla_{\bm{\theta}}f_0(\mathcal{X})^{\mathrm{T}}\hat{\NTK}_{0}^{-1}\left(I - e^{-\eta\hat{\NTK}_0 t/k|\mathcal{D}|}\right)(f_0(\mathcal{X})- \mathcal{Y}) \\
-    &= f_0(\mathcal{X}) - \hat{\NTK}_0 \hat{\NTK}_0^{-1}\left(I - e^{-\eta\hat{\NTK}_0 t/k|\mathcal{D}|}\right)(f_0(\mathcal{X})- \mathcal{Y}) \\
-    &= f_0(\mathcal{X}) - \left(I - e^{-\eta\hat{\NTK}_0 t/k|\mathcal{D}|}\right)(f_0(\mathcal{X})- \mathcal{Y}) \\
-    &= \left(I - e^{-\eta\hat{\NTK}_0 t/k|\mathcal{D}|}\right)\mathcal{Y} + e^{-\eta\hat{\NTK}_0 t/k|\mathcal{D}|}f_0(\mathcal{X}) \label{ntk_output}
+    f_t^{lin}(\mathcal{X}) &= f_0(\mathcal{X}) - \nabla_{\bm{\theta}}f_0(\mathcal{X})\nabla_{\bm{\theta}}f_0(\mathcal{X})^{\mathrm{T}}\hat{\NTK}_{0}^{-1}\left(\bm{I} - e^{-\eta\hat{\NTK}_0 t/k|\mathcal{D}|}\right)(f_0(\mathcal{X})- \mathcal{Y}) \\
+    &= f_0(\mathcal{X}) - \hat{\NTK}_0 \hat{\NTK}_0^{-1}\left(\bm{I} - e^{-\eta\hat{\NTK}_0 t/k|\mathcal{D}|}\right)(f_0(\mathcal{X})- \mathcal{Y}) \\
+    &= f_0(\mathcal{X}) - \left(\bm{I} - e^{-\eta\hat{\NTK}_0 t/k|\mathcal{D}|}\right)(f_0(\mathcal{X})- \mathcal{Y}) \\
+    &= \left(\bm{I} - e^{-\eta\hat{\NTK}_0 t/k|\mathcal{D}|}\right)\mathcal{Y} + e^{-\eta\hat{\NTK}_0 t/k|\mathcal{D}|}f_0(\mathcal{X}) \label{ntk_output}
 \end{align}
 と書ける．$\mathcal{X}$ 以外の入力 $\bm{x}'$ に対する出力 $f_t^{lin}(\bm{x}')$ は，
 \begin{align}
-    f_t^{lin}(\bm{x}') &= f_0(\bm{x}') - \nabla_{\bm{\theta}}f_0(\bm{x}')\nabla_{\bm{\theta}}f_0(\mathcal{X})^{\mathrm{T}}\hat{\NTK}_{0}^{-1}\left(I - e^{-\eta\hat{\NTK}_0 t/k|\mathcal{D}|}\right)(f_0(\mathcal{X})- \mathcal{Y}) \\
-    &= f_0(\bm{x}') - \hat{\NTK}_0(\bm{x}', \mathcal{X}) \hat{\NTK}_0^{-1}\left(I - e^{-\eta\hat{\NTK}_0 t/k|\mathcal{D}|}\right)(f_0(\mathcal{X})- \mathcal{Y})
+    f_t^{lin}(\bm{x}') &= f_0(\bm{x}') - \nabla_{\bm{\theta}}f_0(\bm{x}')\nabla_{\bm{\theta}}f_0(\mathcal{X})^{\mathrm{T}}\hat{\NTK}_{0}^{-1}\left(\bm{I} - e^{-\eta\hat{\NTK}_0 t/k|\mathcal{D}|}\right)(f_0(\mathcal{X})- \mathcal{Y}) \\
+    &= f_0(\bm{x}') - \hat{\NTK}_0(\bm{x}', \mathcal{X}) \hat{\NTK}_0^{-1}\left(\bm{I} - e^{-\eta\hat{\NTK}_0 t/k|\mathcal{D}|}\right)(f_0(\mathcal{X})- \mathcal{Y})
 \end{align}
 と書ける．したがって，初期化時のNNの出力 $f_0(\mathcal{X}), \ f_0(\bm{x}')$ とNTK $\hat{\NTK}_0, \ \hat{\NTK}_0(\bm{x}',\mathcal{X})$を計算すれば， 勾配降下法を実行することなく，LNNの各時間における学習結果を計算できるということである．通常であれば，このようにNNの出力を構成したとしても，各時間における NTK $\hat{\NTK}_t$ を計算する必要があり，何もメリットがない．しかし，4.3節で述べた定理\ref{statement_ntk}により，中間層の幅を十分に大きく取れば，任意の学習時間における NTK $\hat{\NTK}_t$ を $\hat{\NTK}_0$ で近似することができるため，関数空間内においてNNを線形化することができる．
